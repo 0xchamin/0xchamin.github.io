@@ -2,7 +2,7 @@
 
 Interactive visualization of DeepSeek's Multi-Head Latent Attention (MLA) and Mixture of Experts (MoE) architecture, based on Sebastian Raschka's technical analysis.
 
-![DeepSeek V3/R1 Architecture Explorer](deepseek/deepseek.gif)
+![DeepSeek V3/R1 Architecture Explorer](https://github.com/0xchamin/0xchamin.github.io/blob/main/deepseek/deepseek.gif)
 
 ## Demo
 
