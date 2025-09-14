@@ -1,562 +1,452 @@
-class DeepSeekDemo {
-    constructor() {
-        console.log('Visualizer loaded')
-        // Canvas initialization
-        this.mlaCanvas = document.getElementById('mla-canvas');
-        this.moeCanvas = document.getElementById('moe-canvas');
-        this.comparisonCanvas = document.getElementById('comparison-canvas');
-        this.mlaCtx = this.mlaCanvas.getContext('2d');
-        this.moeCtx = this.moeCanvas.getContext('2d');
-        this.comparisonCtx = this.comparisonCanvas ? this.comparisonCanvas.getContext('2d') : null;
-        
-        // Configuration parameters
-        this.compressionRatio = 4;
-        this.expertCount = 32;
-        this.animationSpeed = 1.0;
-        this.comparisonArch = 'gqa';
-        this.inputText = "The quick brown fox jumps over the lazy dog";
-        
-        // Processing state
-        this.isProcessing = false;
-        this.currentTokens = [];
-        
-        // Initialize components
-        this.initializeEventListeners();
-        this.mla = new MLAVisualizer(this.mlaCtx, this.mlaCanvas);
-        this.moe = new MoEVisualizer(this.moeCtx, this.moeCanvas);
-        this.comparison = this.comparisonCtx ? new ComparisonVisualizer(this.comparisonCtx, this.comparisonCanvas) : null;
-        this.analytics = new AnalyticsVisualizer();
-        
-        // Set initial canvas sizes
-        this.setupCanvases();
-        
-        // Process initial input
-        this.processInput();
-    }
+// Enhanced main.js - Premium interactive features
+let currentProject = null;
+let likedProjects = new Set();
+let searchTimeout = null;
+
+// Initialize main functionality
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEventListeners();
+    loadLikedProjects();
+    initializeAnimations();
     
-    setupCanvases() {
-        // Set high DPI canvas rendering
-        const devicePixelRatio = window.devicePixelRatio || 1;
-        
-        // MLA Canvas setup
-        const mlaRect = this.mlaCanvas.getBoundingClientRect();
-        this.mlaCanvas.width = mlaRect.width * devicePixelRatio;
-        this.mlaCanvas.height = mlaRect.height * devicePixelRatio;
-        this.mlaCtx.scale(devicePixelRatio, devicePixelRatio);
-        
-        // MoE Canvas setup
-        const moeRect = this.moeCanvas.getBoundingClientRect();
-        this.moeCanvas.width = moeRect.width * devicePixelRatio;
-        this.moeCanvas.height = moeRect.height * devicePixelRatio;
-        this.moeCtx.scale(devicePixelRatio, devicePixelRatio);
-        
-        // Comparison Canvas setup
-        if (this.comparisonCanvas && this.comparisonCtx) {
-            const comparisonRect = this.comparisonCanvas.getBoundingClientRect();
-            this.comparisonCanvas.width = comparisonRect.width * devicePixelRatio;
-            this.comparisonCanvas.height = comparisonRect.height * devicePixelRatio;
-            this.comparisonCtx.scale(devicePixelRatio, devicePixelRatio);
+    // Load data and initialize components
+    loadProjectsData().then(() => {
+        populateTeamList();
+        createAnalytics();
+        initSearch();
+        initializeIntersectionObserver();
+    });
+});
+
+// Set up event listeners with enhanced interactions
+function initializeEventListeners() {
+    const closeBtn = document.getElementById('closePopup');
+    const likeBtn = document.getElementById('likeBtn');
+    const popup = document.getElementById('projectPopup');
+
+    closeBtn.addEventListener('click', hideProjectPopup);
+    likeBtn.addEventListener('click', toggleLike);
+    
+    // Enhanced popup interactions
+    popup.addEventListener('click', function(e) {
+        if (e.target === popup) {
+            hideProjectPopup();
         }
-    }
-    
-    initializeEventListeners() {
-        // Process button
-        const processBtn = document.getElementById('process-btn');
-        processBtn.addEventListener('click', () => {
-            this.handleProcessClick();
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && popup.style.display === 'flex') {
+            hideProjectPopup();
+        }
+    });
+
+    // Search enhancements
+    const searchInput = document.getElementById('searchTeams');
+    if (searchInput) {
+        searchInput.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
         });
         
-        // Enter key in input field
-        const tokenInput = document.getElementById('token-input');
-        tokenInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.handleProcessClick();
-            }
+        searchInput.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
         });
-        
-        // Compression ratio slider
-        const compressionSlider = document.getElementById('compression-slider');
-        compressionSlider.addEventListener('input', (e) => {
-            this.compressionRatio = parseInt(e.target.value);
-            this.updateCompressionUI();
-            this.mla.setCompressionRatio(this.compressionRatio);
-        });
-        
-        // Animation speed slider
-        const speedSlider = document.getElementById('speed-slider');
-        if (speedSlider) {
-            speedSlider.addEventListener('input', (e) => {
-                this.animationSpeed = parseFloat(e.target.value);
-                this.updateSpeedUI();
-                this.updateAnimationSpeed();
-            });
-        }
-        
-        // Expert count selector
-        const expertCountSelect = document.getElementById('expert-count');
-        expertCountSelect.addEventListener('change', (e) => {
-            this.expertCount = parseInt(e.target.value);
-            this.moe.setExpertCount(this.expertCount);
-        });
-        
-        // Comparison architecture selector
-        const comparisonArchSelect = document.getElementById('comparison-arch');
-        if (comparisonArchSelect) {
-            comparisonArchSelect.addEventListener('change', (e) => {
-                this.comparisonArch = e.target.value;
-                this.updateComparisonArchitecture();
-            });
-        }
-        
-        // Reset button
-        const resetBtn = document.getElementById('reset-btn');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', () => {
-                this.resetDemo();
-            });
-        }
-        
-        // Export button
-        const exportBtn = document.getElementById('export-btn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                this.exportVisualization();
-            });
-        }
-        
-        // Toggle switches
-        const mlaDetailsToggle = document.getElementById('mla-details');
-        if (mlaDetailsToggle) {
-            mlaDetailsToggle.addEventListener('change', (e) => {
-                this.toggleMLADetails(e.target.checked);
-            });
-        }
-        
-        const moeDetailsToggle = document.getElementById('moe-details');
-        if (moeDetailsToggle) {
-            moeDetailsToggle.addEventListener('change', (e) => {
-                this.toggleMoEDetails(e.target.checked);
-            });
-        }
-        
-        const comparisonDetailsToggle = document.getElementById('comparison-details');
-        if (comparisonDetailsToggle) {
-            comparisonDetailsToggle.addEventListener('change', (e) => {
-                this.toggleComparisonDetails(e.target.checked);
-            });
-        }
-        
-        // Window resize handler
-        window.addEventListener('resize', () => {
-            this.debounce(() => {
-                this.setupCanvases();
-                this.refreshVisualizations();
-            }, 250)();
-        });
-    }
-    
-    handleProcessClick() {
-        if (this.isProcessing) return;
-        
-        const tokenInput = document.getElementById('token-input');
-        const newText = tokenInput.value.trim();
-        
-        if (!newText) {
-            this.showNotification('Please enter some text to process', 'warning');
-            return;
-        }
-        
-        this.inputText = newText;
-        this.processInput();
-    }
-    
-    processInput() {
-        this.setProcessingState(true);
-        
-        try {
-            // Tokenize input
-            this.currentTokens = this.tokenize(this.inputText);
-            
-            // Update processing indicators
-            this.updateProcessingIndicators();
-            
-            // Process through MLA
-            setTimeout(() => {
-                this.mla.processTokens(this.currentTokens);
-                
-                // Process through comparison architecture
-                if (this.comparison) {
-                    this.comparison.processTokens(this.currentTokens);
-                }
-                
-                // Update analytics
-                this.analytics.updateCharts();
-                
-                // Delay MoE processing to show sequential flow
-                setTimeout(() => {
-                    this.moe.processTokens(this.currentTokens);
-                    this.updateMetrics();
-                    this.setProcessingState(false);
-                }, 500);
-            }, 200);
-            
-        } catch (error) {
-            console.error('Processing error:', error);
-            this.showNotification('Error processing input', 'error');
-            this.setProcessingState(false);
-        }
-    }
-    
-    updateComparisonArchitecture() {
-        if (this.comparison) {
-            this.comparison.setArchitecture(this.comparisonArch);
-        }
-        
-        this.analytics.setComparisonArchitecture(this.comparisonArch);
-        this.updateComparisonLabels();
-        
-        // Reprocess tokens with new architecture if available
-        if (this.currentTokens.length > 0) {
-            if (this.comparison) {
-                this.comparison.processTokens(this.currentTokens);
-            }
-        }
-    }
-    
-    updateComparisonLabels() {
-        const archNames = {
-            gqa: 'Grouped Query Attention',
-            mqa: 'Multi-Query Attention',
-            mha: 'Multi-Head Attention'
-        };
-        
-        const titleElement = document.getElementById('comparison-title');
-        const badgeElement = document.getElementById('comparison-badge');
-        
-        if (titleElement) {
-            titleElement.textContent = archNames[this.comparisonArch] || this.comparisonArch.toUpperCase();
-        }
-        
-        if (badgeElement) {
-            badgeElement.textContent = 'Traditional';
-        }
-    }
-    
-    tokenize(text) {
-        return text.split(/\s+/).filter(word => word.length > 0).map((word, idx) => ({
-            text: word,
-            id: idx,
-            embedding: this.generateRandomEmbedding(),
-            position: idx
-        }));
-    }
-    
-    generateRandomEmbedding() {
-        return Array.from({length: 128}, () => Math.random() * 2 - 1);
-    }
-    
-    updateCompressionUI() {
-        const compressionValue = document.getElementById('compression-value');
-        const compressionDisplay = document.getElementById('compression-ratio-display');
-        
-        if (compressionValue) {
-            compressionValue.textContent = `${this.compressionRatio}x`;
-        }
-        if (compressionDisplay) {
-            compressionDisplay.textContent = `${this.compressionRatio}x`;
-        }
-    }
-    
-    updateSpeedUI() {
-        // Find the speed slider specifically
-        const speedSlider = document.getElementById('speed-slider');
-        if (speedSlider) {
-            const speedLabel = speedSlider.closest('.param-group').querySelector('.param-value');
-            if (speedLabel) {
-                speedLabel.textContent = `${this.animationSpeed.toFixed(1)}x`;
-            }
-        }
-    }
-    updateAnimationSpeed() {
-        // Update animation timing in visualizers if they support it
-        if (this.mla.setAnimationSpeed) {
-            this.mla.setAnimationSpeed(this.animationSpeed);
-        }
-        if (this.moe.setAnimationSpeed) {
-            this.moe.setAnimationSpeed(this.animationSpeed);
-        }
-        if (this.comparison && this.comparison.setAnimationSpeed) {
-            this.comparison.setAnimationSpeed(this.animationSpeed);
-        }
-    }
-    
-    updateMetrics() {
-        this.updateMemoryMetrics();
-        this.updateParameterMetrics();
-        this.updateExpertMetrics();
-    }
-    
-    updateMemoryMetrics() {
-        const memoryBefore = this.calculateMemoryUsage(false);
-        const memoryAfter = this.calculateMemoryUsage(true);
-        const savingsPercent = ((memoryBefore - memoryAfter) / memoryBefore * 100).toFixed(1);
-        
-        const memoryUsageElement = document.getElementById('memory-usage');
-        if (memoryUsageElement) {
-            memoryUsageElement.textContent = `${memoryAfter.toFixed(1)}MB / ${memoryBefore.toFixed(1)}MB`;
-        }
-        
-        // Update efficiency display
-        const efficiencyElements = document.querySelectorAll('.metric-trend.up');
-        efficiencyElements.forEach(el => {
-            if (el.textContent.includes('%')) {
-                el.textContent = `↑ ${savingsPercent}%`;
-            }
-        });
-    }
-    
-    updateParameterMetrics() {
-        const activeParamsElement = document.getElementById('active-params');
-        if (activeParamsElement) {
-            activeParamsElement.textContent = '37B / 671B';
-        }
-    }
-    
-    updateExpertMetrics() {
-        const selectedExpertsElement = document.getElementById('selected-experts');
-        if (selectedExpertsElement) {
-            selectedExpertsElement.textContent = '9 Total';
-        }
-    }
-    
-    calculateMemoryUsage(compressed) {
-        const seqLength = this.currentTokens.length || 1;
-        const hiddenSize = 4096;
-        const numHeads = 32;
-        
-        if (compressed) {
-            const compressedSize = hiddenSize / this.compressionRatio;
-            return (seqLength * compressedSize * 2 * 4) / (1024 * 1024); // 2 for K,V, 4 bytes per float
-        } else {
-            return (seqLength * hiddenSize * numHeads * 2 * 4) / (1024 * 1024);
-        }
-    }
-    
-    setProcessingState(processing) {
-        this.isProcessing = processing;
-        
-        const processBtn = document.getElementById('process-btn');
-        const mlaIndicator = document.getElementById('mla-indicator');
-        const moeIndicator = document.getElementById('moe-indicator');
-        const comparisonIndicator = document.getElementById('comparison-indicator');
-        
-        if (processing) {
-            processBtn.textContent = 'Processing...';
-            processBtn.disabled = true;
-            if (mlaIndicator) mlaIndicator.style.display = 'flex';
-            if (moeIndicator) moeIndicator.style.display = 'flex';
-            if (comparisonIndicator) comparisonIndicator.style.display = 'flex';
-        } else {
-            processBtn.innerHTML = `
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
-                </svg>
-                Process
-            `;
-            processBtn.disabled = false;
-            
-            // Hide indicators after delay
-            setTimeout(() => {
-                if (mlaIndicator) mlaIndicator.style.display = 'none';
-                if (moeIndicator) moeIndicator.style.display = 'none';
-                if (comparisonIndicator) comparisonIndicator.style.display = 'none';
-            }, 2000);
-        }
-    }
-    
-    updateProcessingIndicators() {
-        const mlaIndicator = document.getElementById('mla-indicator');
-        const moeIndicator = document.getElementById('moe-indicator');
-        const comparisonIndicator = document.getElementById('comparison-indicator');
-        
-        if (mlaIndicator) {
-            mlaIndicator.querySelector('span').textContent = `Processing ${this.currentTokens.length} tokens...`;
-        }
-        if (moeIndicator) {
-            moeIndicator.querySelector('span').textContent = `Routing through experts...`;
-        }
-        if (comparisonIndicator) {
-            comparisonIndicator.querySelector('span').textContent = `Processing with ${this.comparisonArch.toUpperCase()}...`;
-        }
-    }
-    
-    toggleMLADetails(show) {
-        if (this.mla.setShowDetails) {
-            this.mla.setShowDetails(show);
-        }
-    }
-    
-    toggleMoEDetails(show) {
-        if (this.moe.setShowConnections) {
-            this.moe.setShowConnections(show);
-        }
-    }
-    
-    toggleComparisonDetails(show) {
-        if (this.comparison && this.comparison.setShowDetails) {
-            this.comparison.setShowDetails(show);
-        }
-    }
-    
-    resetDemo() {
-        // Reset to initial state
-        document.getElementById('token-input').value = 'The quick brown fox jumps over the lazy dog';
-        document.getElementById('compression-slider').value = '4';
-        document.getElementById('expert-count').value = '32';
-        
-        const comparisonArchSelect = document.getElementById('comparison-arch');
-        if (comparisonArchSelect) {
-            comparisonArchSelect.value = 'gqa';
-        }
-        
-        this.compressionRatio = 4;
-        this.expertCount = 32;
-        this.animationSpeed = 1.0;
-        this.comparisonArch = 'gqa';
-        
-        this.updateCompressionUI();
-        this.updateSpeedUI();
-        this.updateComparisonArchitecture();
-        
-        // Reset visualizers
-        if (this.mla.reset) this.mla.reset();
-        if (this.moe.reset) this.moe.reset();
-        if (this.comparison && this.comparison.reset) this.comparison.reset();
-        
-        this.showNotification('Demo reset to initial state', 'success');
-    }
-    
-    exportVisualization() {
-        try {
-            // Create a combined canvas for export
-            const exportCanvas = document.createElement('canvas');
-            const exportCtx = exportCanvas.getContext('2d');
-            
-            exportCanvas.width = Math.max(this.mlaCanvas.width, this.comparisonCanvas?.width || 0);
-            exportCanvas.height = this.mlaCanvas.height + (this.comparisonCanvas?.height || 0) + this.moeCanvas.height + 150;
-            
-            // Draw visualizations
-            exportCtx.fillStyle = '#0f0f0f';
-            exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-            
-            let yOffset = 0;
-            
-            // Draw comparison section if available
-            if (this.comparisonCanvas) {
-                exportCtx.drawImage(this.mlaCanvas, 0, yOffset);
-                exportCtx.drawImage(this.comparisonCanvas, this.mlaCanvas.width + 50, yOffset);
-                yOffset += Math.max(this.mlaCanvas.height, this.comparisonCanvas.height) + 50;
-            } else {
-                exportCtx.drawImage(this.mlaCanvas, 0, yOffset);
-                yOffset += this.mlaCanvas.height + 50;
-            }
-            
-            exportCtx.drawImage(this.moeCanvas, 0, yOffset);
-            
-            // Download as PNG
-            const link = document.createElement('a');
-            link.download = `deepseek-architecture-comparison-${Date.now()}.png`;
-            link.href = exportCanvas.toDataURL();
-            link.click();
-            
-            this.showNotification('Visualization exported successfully', 'success');
-        } catch (error) {
-            console.error('Export error:', error);
-            this.showNotification('Export failed', 'error');
-        }
-    }
-    
-    refreshVisualizations() {
-        if (this.currentTokens.length > 0) {
-            this.mla.processTokens(this.currentTokens);
-            this.moe.processTokens(this.currentTokens);
-            if (this.comparison) {
-                this.comparison.processTokens(this.currentTokens);
-            }
-            this.analytics.updateCharts();
-        }
-    }
-    
-    showNotification(message, type = 'info') {
-        // Simple notification system
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem;
-            background: ${type === 'error' ? '#FF6B6B' : type === 'warning' ? '#FFE66D' : '#4ECDC4'};
-            color: ${type === 'warning' ? '#000' : '#fff'};
-            border-radius: 8px;
-            z-index: 1000;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            animation: slideIn 0.3s ease;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-    
-    // Utility function for debouncing
-    debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
     }
 }
 
-// Add CSS for notifications
-const notificationStyles = document.createElement('style');
-notificationStyles.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+// Enhanced project popup with smooth animations
+function showProjectPopup(project) {
+    currentProject = project;
+    
+    // Update content
+    document.getElementById('projectTitle').textContent = project.team;
+    document.getElementById('projectTheme').textContent = project.theme;
+    document.getElementById('projectDescription').textContent = project.project;
+    document.getElementById('projectOutcome').textContent = project.outcome;
+    document.getElementById('projectLocation').textContent = project.location;
+    document.getElementById('likeCount').textContent = project.likes || 0;
+    
+    
+    // Add contact information
+    document.getElementById('contactName').textContent = project.contact_name || 'Not specified';
+    document.getElementById('contactEmail').textContent = project.contact_email || 'Not provided';
+
+    // Update like button state
+    updateLikeButton(project.team);
+    
+    // Generate AI image placeholder with loading animation
+    generateProjectImage(project);
+    
+    // Show popup with animation
+    const popup = document.getElementById('projectPopup');
+    popup.style.display = 'flex';
+    popup.style.opacity = '0';
+    
+    // Smooth fade in
+    requestAnimationFrame(() => {
+        popup.style.transition = 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+        popup.style.opacity = '1';
+    });
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+// Enhanced popup hiding
+function hideProjectPopup() {
+    const popup = document.getElementById('projectPopup');
+    popup.style.transition = 'opacity 0.3s ease';
+    popup.style.opacity = '0';
+    
+    setTimeout(() => {
+        popup.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }, 300);
+    
+    currentProject = null;
+}
+
+// Enhanced like functionality with animations
+function toggleLike() {
+    if (!currentProject) return;
+    
+    const projectId = currentProject.team;
+    const isLiked = likedProjects.has(projectId);
+    const likeBtn = document.getElementById('likeBtn');
+    
+    // Add click animation
+    likeBtn.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        likeBtn.style.transform = 'scale(1)';
+    }, 150);
+    
+    if (isLiked) {
+        likedProjects.delete(projectId);
+        currentProject.likes = Math.max(0, (currentProject.likes || 0) - 1);
+    } else {
+        likedProjects.add(projectId);
+        currentProject.likes = (currentProject.likes || 0) + 1;
+        
+        // Heart animation
+        const heart = likeBtn.querySelector('.heart');
+        heart.style.animation = 'heartBeat 0.6s ease';
+        setTimeout(() => {
+            heart.style.animation = '';
+        }, 600);
     }
     
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(notificationStyles);
+    updateLikeButton(projectId);
+    
+    // Animate counter update
+    const likeCount = document.getElementById('likeCount');
+    likeCount.style.transform = 'scale(1.3)';
+    likeCount.textContent = currentProject.likes;
+    setTimeout(() => {
+        likeCount.style.transform = 'scale(1)';
+    }, 200);
+    
+    saveLikedProjects();
+}
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM ready, initializing DeepSeek demo');
-    new DeepSeekDemo();
-});
+// Enhanced like button appearance
+function updateLikeButton(projectId) {
+    const likeBtn = document.getElementById('likeBtn');
+    const heart = likeBtn.querySelector('.heart');
+    const isLiked = likedProjects.has(projectId);
+    
+    if (isLiked) {
+        likeBtn.style.background = 'linear-gradient(135deg, #EF4444, #DC2626)';
+        heart.textContent = '❤️';
+        likeBtn.style.boxShadow = '0 8px 25px rgba(239, 68, 68, 0.4)';
+    } else {
+        likeBtn.style.background = 'linear-gradient(135deg, #3B82F6, #1D4ED8)';
+        heart.textContent = '🤍';
+        likeBtn.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.4)';
+    }
+}
+
+// Enhanced AI image generation with loading states
+function generateProjectImage(project) {
+    const imageContainer = document.getElementById('projectImage');
+    
+    // Show loading state
+    imageContainer.innerHTML = `
+        <div class="loading-state" style="
+            color: #CBD5E1; 
+            text-align: center; 
+            padding: 3rem;
+            animation: pulse 1.5s infinite;
+        ">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
+            <p style="margin-bottom: 0.5rem;">Generating AI Image...</p>
+            <p style="font-size: 0.9rem; opacity: 0.7;">${project.theme}</p>
+            <div style="
+                width: 40px;
+                height: 4px;
+                background: linear-gradient(90deg, #3B82F6, #F7E7B4);
+                border-radius: 2px;
+                margin: 1rem auto;
+                animation: loading 1.5s infinite;
+            "></div>
+        </div>
+    `;
+    
+    // Simulate API call delay
+    setTimeout(() => {
+        imageContainer.innerHTML = `
+            <div style="
+                color: #E2E8F0; 
+                text-align: center; 
+                padding: 3rem;
+                background: linear-gradient(135deg, ${getThemeColor(project.theme)}20, transparent);
+                border-radius: 12px;
+            ">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">${getThemeIcon(project.theme)}</div>
+                <p style="font-weight: 600; margin-bottom: 0.5rem;">AI-Generated Concept</p>
+                <p style="font-size: 0.9rem; opacity: 0.8;">${project.theme} Innovation</p>
+                <div style="
+                    display: inline-block;
+                    background: ${getThemeColor(project.theme)};
+                    color: white;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                    margin-top: 1rem;
+                ">Ready for Demo</div>
+            </div>
+        `;
+    }, 2000);
+}
+
+// Enhanced team list with filtering and animations
+function populateTeamList() {
+    const container = document.getElementById('teamsList');
+    container.innerHTML = '';
+    
+    projectsData.forEach((project, index) => {
+        const teamItem = document.createElement('div');
+        teamItem.className = 'team-item';
+        teamItem.style.animationDelay = `${index * 0.1}s`;
+        
+        teamItem.innerHTML = `
+            <div class="team-name">${project.team}</div>
+            <div class="team-theme">${project.theme}</div>
+            <div class="team-location">📍 ${project.county}</div>
+            <div class="team-likes">❤️ ${project.likes || 0}</div>
+        `;
+        
+        // Enhanced click interaction
+        teamItem.addEventListener('click', () => {
+            showProjectPopup(project);
+            focusOnProject(project.team);
+        });
+        
+        // Add hover sound effect (visual feedback)
+        teamItem.addEventListener('mouseenter', () => {
+            teamItem.style.transform = 'translateY(-4px) scale(1.02)';
+        });
+        
+        teamItem.addEventListener('mouseleave', () => {
+            teamItem.style.transform = 'translateY(0) scale(1)';
+        });
+        
+        container.appendChild(teamItem);
+    });
+}
+
+// Enhanced search with debouncing and highlighting
+function initSearch() {
+    const searchInput = document.getElementById('searchTeams');
+    if (!searchInput) return;
+    
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const query = e.target.value.toLowerCase().trim();
+            filterTeams(query);
+        }, 300);
+    });
+}
+
+function filterTeams(query) {
+    const items = document.querySelectorAll('.team-item');
+    let visibleCount = 0;
+    
+    items.forEach((item, index) => {
+        const text = item.textContent.toLowerCase();
+        const isVisible = !query || text.includes(query);
+        
+        if (isVisible) {
+            item.style.display = 'block';
+            item.style.animationDelay = `${visibleCount * 0.05}s`;
+            item.classList.add('fade-in');
+            visibleCount++;
+        } else {
+            item.style.display = 'none';
+        }
+    });
+    
+    // Update results count
+    const resultsText = query ? `${visibleCount} results for "${query}"` : `${visibleCount} projects`;
+    updateSearchResults(resultsText);
+}
+
+function updateSearchResults(text) {
+    const sidebar = document.querySelector('.sidebar h3');
+    if (sidebar) {
+        sidebar.textContent = `Projects (${text.split(' ')[0]})`;
+    }
+}
+
+// Enhanced analytics with interactive charts
+function createAnalytics() {
+    createCountyChart();
+    createThemeChart();
+}
+
+function createCountyChart() {
+    const counties = {};
+    projectsData.forEach(p => {
+        counties[p.county] = (counties[p.county] || 0) + 1;
+    });
+    
+    const ctx = document.getElementById('countyChart');
+    if (ctx) {
+        const maxCount = Math.max(...Object.values(counties));
+        ctx.innerHTML = Object.entries(counties)
+            .sort(([,a], [,b]) => b - a)
+            .map(([county, count]) => 
+                `<div class="stat-item" style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 0.75rem;
+                    margin-bottom: 0.5rem;
+                    background: var(--secondary);
+                    border-radius: 8px;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                " onmouseover="this.style.background='var(--accent-blue)'; this.style.transform='translateX(5px)'" 
+                   onmouseout="this.style.background='var(--secondary)'; this.style.transform='translateX(0)'">
+                    <span style="color: var(--text-primary); font-weight: 500;">${county}</span>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="
+                            width: ${(count/maxCount)*60}px;
+                            height: 4px;
+                            background: var(--accent-gold);
+                            border-radius: 2px;
+                            min-width: 8px;
+                        "></div>
+                        <span style="color: var(--accent-gold); font-weight: 600; min-width: 20px;">${count}</span>
+                    </div>
+                </div>`
+            ).join('');
+    }
+}
+
+function createThemeChart() {
+    const themes = {};
+    projectsData.forEach(p => {
+        themes[p.theme] = (themes[p.theme] || 0) + 1;
+    });
+    
+    const ctx = document.getElementById('themeChart');
+    if (ctx) {
+        ctx.innerHTML = Object.entries(themes)
+            .sort(([,a], [,b]) => b - a)
+            .map(([theme, count]) => 
+                `<div class="theme-item" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    padding: 0.75rem;
+                    margin-bottom: 0.5rem;
+                    background: var(--secondary);
+                    border-radius: 8px;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                " onmouseover="this.style.background='${getThemeColor(theme)}20'" 
+                   onmouseout="this.style.background='var(--secondary)'">
+                    <div style="
+                        width: 12px;
+                        height: 12px;
+                        background: ${getThemeColor(theme)};
+                        border-radius: 50%;
+                        box-shadow: 0 0 8px ${getThemeColor(theme)}40;
+                    "></div>
+                    <span style="color: var(--text-primary); flex: 1;">${theme}</span>
+                    <span style="color: ${getThemeColor(theme)}; font-weight: 600;">${count}</span>
+                </div>`
+            ).join('');
+    }
+}
+
+// Animation initialization
+function initializeAnimations() {
+    // Add entrance animations to main sections
+    const animatedElements = document.querySelectorAll('.map-section, .sidebar, .analytics-section');
+    animatedElements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        el.style.animationDelay = `${index * 0.2}s`;
+        
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 200 + 300);
+    });
+}
+
+// Intersection Observer for scroll animations
+function initializeIntersectionObserver() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.team-item, .stat-item, .theme-item').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+// Utility functions
+function saveLikedProjects() {
+    localStorage.setItem('likedProjects', JSON.stringify([...likedProjects]));
+}
+
+function loadLikedProjects() {
+    const saved = localStorage.getItem('likedProjects');
+    if (saved) {
+        likedProjects = new Set(JSON.parse(saved));
+    }
+}
+
+// Theme utilities (shared with map.js)
+function getThemeColor(theme) {
+    const colors = {
+        'CleanTech': '#10B981',
+        'HealthTech': '#3B82F6',
+        'Enterprise': '#F59E0B',
+        'Education': '#8B5CF6',
+        'Language': '#EF4444',
+        'MediaTech': '#EC4899'
+    };
+    return colors[theme] || '#6B7280';
+}
+
+function getThemeIcon(theme) {
+    const icons = {
+        'CleanTech': '🌱',
+        'HealthTech': '🏥',
+        'Enterprise': '🏢',
+        'Education': '🎓',
+        'Language': '💬',
+        'MediaTech': '🎬'
+    };
+    return icons[theme] || '🤖';
+}
+
