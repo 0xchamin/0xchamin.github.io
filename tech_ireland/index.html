@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechIreland AI Challenge 2025 - Project Showcase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <header class="header">
+        <h1 class="title">TechIreland AI Challenge 2025</h1>
+        <p class="subtitle">Discover Ireland's Most Innovative AI Projects</p>
+    </header>
+
+    <main class="main-container">
+        <div class="content-grid">
+            <!-- Map Section (2/3) -->
+            <div class="map-section">
+                <div id="map" class="map-container"></div>
+            </div>
+
+            <!-- Sidebar Section (1/3) -->
+            <div class="sidebar">
+                <div class="team-list">
+                    <h3>Projects (15)</h3>
+                    <div class="search-box">
+                        <input type="text" id="searchTeams" placeholder="Search projects...">
+                    </div>
+                    <div id="teamsList" class="teams-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section (Bottom) -->
+        <div class="analytics-section">
+            <div class="analytics-grid">
+                <div class="county-stats">
+                    <h3>County Distribution</h3>
+                    <div id="countyChart"></div>
+                </div>
+                <div class="theme-stats">
+                    <h3>Project Themes</h3>
+                    <div id="themeChart"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="project-popup" id="projectPopup">
+        <div class="popup-content">
+            <button class="close-btn" id="closePopup">&times;</button>
+            <div class="popup-body">
+                <div class="project-image" id="projectImage"></div>
+                <div class="project-details">
+                    <h3 class="project-title" id="projectTitle"></h3>
+                    <p class="project-theme" id="projectTheme"></p>
+                    <p class="project-description" id="projectDescription"></p>
+                    <p class="project-outcome" id="projectOutcome"></p>
+                    <div class="project-footer">
+                        <span class="project-location" id="projectLocation"></span>
+                        <button class="like-btn" id="likeBtn">
+                            <span class="heart">♥</span>
+                            <span class="like-count" id="likeCount">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
