@@ -799,3 +799,36 @@ body {
         min-width: auto;
     }
 }
+
+.view-toggle {
+    display: flex;
+    background: var(--secondary);
+    border-radius: 8px;
+    padding: 2px;
+}
+
+.toggle-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn.active {
+    background: var(--accent-blue);
+    color: white;
+}
+
+.teams-container.list-view .team-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.teams-container.list-view .team-name {
+    flex: 1;
+}
