@@ -450,3 +450,26 @@ function getThemeIcon(theme) {
     return icons[theme] || '🤖';
 }
 
+// Initialize view toggle functionality
+function initViewToggle() {
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
+    const teamsContainer = document.getElementById('teamsList');
+    
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Remove active class from all buttons
+            toggleBtns.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            btn.classList.add('active');
+            
+            const view = btn.dataset.view;
+            if (view === 'list') {
+                teamsContainer.classList.add('list-view');
+                teamsContainer.classList.remove('grid-view');
+            } else {
+                teamsContainer.classList.add('grid-view');
+                teamsContainer.classList.remove('list-view');
+            }
+        });
+    });
+}
