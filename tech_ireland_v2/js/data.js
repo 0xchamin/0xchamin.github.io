@@ -4,7 +4,7 @@ let projectsData = [];
 // Load projects data from JSON file
 async function loadProjectsData() {
     try {
-        const response = await fetch('../data/projects.json');
+        const response = await fetch('https://0xchamin.github.io/tech_ireland_v2/data/projects.json');
         const data = await response.json();
         projectsData = data;
         console.log('✅ Projects data loaded successfully:', projectsData.length, 'projects');
