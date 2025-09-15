@@ -26,7 +26,7 @@ function initializeEventListeners() {
     const popup = document.getElementById('projectPopup');
 
     closeBtn.addEventListener('click', hideProjectPopup);
-    likeBtn.addEventListener('click', toggleLike);
+   // likeBtn.addEventListener('click', toggleLike);
     
     // Enhanced popup interactions
     popup.addEventListener('click', function(e) {
