@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         populateTeamList();
         createAnalytics();
         initSearch();
+        initViewToggle();
         initializeIntersectionObserver();
     });
 });
