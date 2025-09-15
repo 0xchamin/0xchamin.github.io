@@ -65,7 +65,7 @@ function showProjectPopup(project) {
     document.getElementById('projectDescription').textContent = project.project;
     document.getElementById('projectOutcome').textContent = project.outcome;
     document.getElementById('projectLocation').textContent = project.location;
-    document.getElementById('likeCount').textContent = project.likes || 0;
+    //document.getElementById('likeCount').textContent = project.likes || 0;
     
     
     // Add contact information
