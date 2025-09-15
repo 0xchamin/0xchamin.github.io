@@ -73,7 +73,7 @@ function showProjectPopup(project) {
     document.getElementById('contactEmail').textContent = project.contact_email || 'Not provided';
 
     // Update like button state
-    updateLikeButton(project.team);
+    //updateLikeButton(project.team);
     
     // Generate AI image placeholder with loading animation
     generateProjectImage(project);
@@ -136,7 +136,7 @@ function toggleLike() {
         }, 600);
     }
     
-    updateLikeButton(projectId);
+    //updateLikeButton(projectId);
     
     // Animate counter update
     const likeCount = document.getElementById('likeCount');
@@ -152,7 +152,7 @@ function toggleLike() {
 // Enhanced like button appearance
 function updateLikeButton(projectId) {
     const likeBtn = document.getElementById('likeBtn');
-    const heart = likeBtn.querySelector('.heart');
+    //const heart = likeBtn.querySelector('.heart');
     const isLiked = likedProjects.has(projectId);
     
     if (isLiked) {
