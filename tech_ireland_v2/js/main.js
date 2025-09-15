@@ -233,7 +233,7 @@ function populateTeamList() {
             <div class="team-name">${project.team}</div>
             <div class="team-theme">${project.theme}</div>
             <div class="team-location">📍 ${project.county}</div>
-            <div class="team-likes">❤️ ${project.likes || 0}</div>
+           
         `;
         
         // Enhanced click interaction
