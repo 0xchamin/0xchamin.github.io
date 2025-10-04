@@ -1,37 +1,406 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chamin Hewage - Senior Software Engineer (AI & ML)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-light: #f9fafb;
+            --border: #e5e7eb;
+        }
 
-    <title>Hello, world!</title>
-  </head>
-  <body>
-    <h1>Chamin Hewage</h1>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: white;
+        }
 
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
 
-<h3>welcome!</h3>
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+        }
 
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
 
-<h2>Visit</h2>
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
 
-<a href="https://0xchamin.github.io/deepseek/">DeepSeek demo</a><br/>
-<a href="https://0xchamin.github.io/tech_ireland_v2/">TechIreland AI challenge demo</a>
+        .contact-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
 
-    <!-- Optional JavaScript; choose one of the two! -->
+        .contact-links a:hover {
+            color: var(--primary);
+        }
 
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        section {
+            margin-bottom: 3rem;
+        }
 
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    -->
-  </body>
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        .skills-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .skill-category {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .skill-label {
+            font-weight: 600;
+            min-width: 140px;
+            color: var(--text-primary);
+        }
+
+        .skill-items {
+            color: var(--text-secondary);
+        }
+
+        .experience-item, .project-item {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .experience-item:last-child, .project-item:last-child {
+            border-bottom: none;
+        }
+
+        .experience-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .company {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .location {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .role {
+            font-weight: 500;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .date {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .achievements {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .achievements li {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .achievements li:before {
+            content: "▹";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .project-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .project-link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+
+        .education-item {
+            padding: 1rem 0;
+        }
+
+        .degree {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 2rem 1.5rem;
+            }
+
+            .experience-header {
+                flex-direction: column;
+            }
+
+            .skill-category {
+                flex-direction: column;
+            }
+
+            .skill-label {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chamin Hewage</h1>
+            <div class="contact-links">
+                <a href="mailto:chmk90@gmail.com">✉ chmk90@gmail.com</a>
+                <a href="tel:+353894726069">📱 +353-89-472-6069</a>
+                <a href="https://www.linkedin.com/in/chaminhewage/" target="_blank">🔗 LinkedIn</a>
+                <a href="https://medium.com/@chaminn" target="_blank">📝 Medium</a>
+                <a href="https://huggingface.co/Chamin09/spaces" target="_blank">🤖 HuggingFace</a>
+            </div>
+        </header>
+
+        <section id="skills">
+            <h2>Skills</h2>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <div class="skill-label">Languages:</div>
+                    <div class="skill-items">Python, Java, SQL, JavaScript, Node.js, HTML/CSS, PHP, Shell scripting</div>
+                </div>
+                <div class="skill-category">
+                    <div class="skill-label">AI/ML:</div>
+                    <div class="skill-items">Neural Networks, LLMs, Context engineering, RAG, Agents, Fine-tuning, AI Evals, AI/ML model testing, n8n</div>
+                </div>
+                <div class="skill-category">
+                    <div class="skill-label">Technologies:</div>
+                    <div class="skill-items">Git, Kubernetes, Pandas, NumPy, Scikit-Learn, Spark, PyTorch, Pydantic, Transformers</div>
+                </div>
+                <div class="skill-category">
+                    <div class="skill-label">Domains:</div>
+                    <div class="skill-items">Distributed Systems, Databases (SQL & NoSQL), System Design, DataLakes</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience">
+            <h2>Professional Experience</h2>
+            
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <div class="company">Hewlett Packard Enterprise (HPE)</div>
+                        <div class="role">Senior Software Engineer (AI & ML)</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="location">Ireland</div>
+                        <div class="date">Aug 2023 - Present</div>
+                    </div>
+                </div>
+                <ul class="achievements">
+                    <li>Build data integration pipelines to ETL from diverse sources, achieving 3–4x scalability, 55–80% performance gains, 60% faster deployments, and $250K+ savings across 6+ major analytics services.</li>
+                    <li>Designed and developed an AI-native IP licensing platform with secure vault storage, time-bound encryption, and monitoring to align with company strategy and enable innovative IP monetization. (on-going)</li>
+                    <li>Implemented inference optimizations (async calls), evaluation techniques (BLEU, ROGUE, Human evals), LLM-based layout extraction and OCR-based text extraction, and LangChain to innovate legal contracts chat bot</li>
+                    <li>Implemented multi-agent, multi-model (text and vision) based AI search engine prototype to reduce time and human capital allocated on RFPs at prominent innovation hackathon at HPE</li>
+                    <li>Interviewed (contract) candidates, established engineering practices, mentor junior engineers, review HPE white papers, and deliver company wide tech talks on cloud architecture and GenAI</li>
+                    <li>Co-authored IP disclosure for HPE's Cloud Platform portfolio (under review)</li>
+                </ul>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <div class="company">University College Dublin</div>
+                        <div class="role">Scalable data systems researcher [PhD]</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="location">Ireland</div>
+                        <div class="date">May 2019 - Apr 2023</div>
+                    </div>
+                </div>
+                <ul class="achievements">
+                    <li>Architected a scalable cloud data lake to integrate large data sets in Hadoop and HBase environment</li>
+                    <li>Innovated scalable three index structures, for distributed databases, to achieve a 34-55% improvement in storage, a 3.4-4.7x gain in query performance, and a 3-5.2% enhancement in CPU execution</li>
+                    <li>Contributed to implement a Spark-based distributed batch-processing algorithm to speed-up batch processing 16x</li>
+                    <li>Presented research globally and won best research presentation at an IEEE workshop</li>
+                </ul>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <div class="company">Cisco Systems Inc. & Pi School</div>
+                        <div class="role">Machine learning summer intern</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="location">Italy</div>
+                        <div class="date">June 2018 - Aug 2018</div>
+                    </div>
+                </div>
+                <ul class="achievements">
+                    <li>Built an ML pipeline to enable application of different ML models which implemented through Scikit-Learn</li>
+                </ul>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <div class="company">NTU</div>
+                        <div class="role">Software Engineer</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="location">Singapore</div>
+                        <div class="date">Feb 2017 - Apr 2019</div>
+                    </div>
+                </div>
+                <ul class="achievements">
+                    <li>Implemented Markov Model based real-time data monitoring app with pattern recognition and anomaly detection</li>
+                    <li>Led migration of SQL-based full-stack application from monolithic to microservices while implementing REST APIs</li>
+                </ul>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <div class="company">Sysco LABS</div>
+                        <div class="role">Software Engineer</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="location">Sri Lanka</div>
+                        <div class="date">Feb 2016 - Feb 2017</div>
+                    </div>
+                </div>
+                <ul class="achievements">
+                    <li>Developed remote-debug feature to reduce the debug effort time from ~10 minutes to 30 seconds</li>
+                    <li>Contributed to developing many core features for the full-stack web app that server 4000+ unique users</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="projects">
+            <h2>Generative AI / Reinforcement Learning Projects</h2>
+            
+            <div class="project-item">
+                <div>
+                    <a href="#" class="project-link">ICØN</a>
+                    <span class="badge">Finalist - AI Ireland, 2025</span>
+                </div>
+                <p style="margin-top: 0.5rem; color: var(--text-secondary);">AI Identity management platform (Claude, 11Labs)</p>
+            </div>
+
+            <div class="project-item">
+                <div>
+                    <a href="https://huggingface.co/spaces/Chamin09/agentic_image_content_filtering_app/blob/main/README.md" class="project-link" target="_blank">AI content search</a>
+                </div>
+                <p style="margin-top: 0.5rem; color: var(--text-secondary);">Multi-agent, multi-model top k image recommendation with guardrails (LangChain, BLIP vision models, FLAN-T5-XL model, dynamic model selections, semantic understanding, etc.)</p>
+            </div>
+
+            <div class="project-item">
+                <div>
+                    <a href="https://github.com/0xchamin/FlightSimulator/tree/main" class="project-link" target="_blank">Flight Simulator</a>
+                </div>
+                <p style="margin-top: 0.5rem; color: var(--text-secondary);">A browser game based on Q-Learning and Basic Agent reinforcement learning.</p>
+            </div>
+
+            <div class="project-item">
+                <div>
+                    <a href="https://medium.com/lids-magazine/finetune-flux-1-dev-to-generate-custom-ai-images-f46875b454a0" class="project-link" target="_blank">FluxDev-Fine-tune</a>
+                </div>
+                <p style="margin-top: 0.5rem; color: var(--text-secondary);">Applied LoRA fine-tuning and quantization atop stable diffusion based Flux-dev model to generate custom images while ensuring affordable fine-tuning on lower VRAM.</p>
+            </div>
+
+            <div class="project-item">
+                <div>
+                    <a href="https://huggingface.co/spaces/Chamin09/BrailleMenuGenV2/tree/main" class="project-link" target="_blank">BrailMenuGen</a>
+                </div>
+                <p style="margin-top: 0.5rem; color: var(--text-secondary);">Generate Braille-friendly PDFs from images (OpenCV, LlaMA-3-8B, LayoutLMv2)</p>
+            </div>
+        </section>
+
+        <section id="education">
+            <h2>Education</h2>
+            <div class="education-item">
+                <div class="experience-header">
+                    <div>
+                        <div class="degree">PhD in Computer Science (Scalable integrated data systems)</div>
+                        <div class="company">University College Dublin</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="location">Dublin, Ireland</div>
+                        <div class="date">May 2019 - Apr 2023</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
 </html>
